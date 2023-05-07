@@ -2,16 +2,19 @@ import os
 import cv2
 import numpy as np
 
-img = cv2.imread(os.path.join("data", "basketball_player.jpg"))
-img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
+img = cv2.imread(os.path.join("data", "whiteboard.png"))
 
-img_edge = cv2.Canny(img, 300, 500)
+# Lines
+cv2.line(img, (0, 0), (img.shape[1], img.shape[0]), (0, 255, 0), 3)
 
-img_edge_dilate = cv2.dilate(img_edge, np.ones((3,3), dtype=np.int8))
-img_edge_erode = cv2.erode(img_edge_dilate, np.ones((3,3), dtype=np.int8))
+# Rectangles
+cv2.rectangle(img, (200, 350), (450, 600), (0, 0, 255), -1)
+
+# Circles
+cv2.circle(img, (800, 200), 75, (255, 0, 0), 10)
+
+# Text
+cv2.putText(img, "OpenCV", (600, 450), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 255, 0), 2)
 
 cv2.imshow("img", img)
-cv2.imshow("img_edge", img_edge)
-cv2.imshow("img_edge_dilate", img_edge_dilate)
-cv2.imshow("img_edge_erode", img_edge_erode)
 cv2.waitKey(0)
