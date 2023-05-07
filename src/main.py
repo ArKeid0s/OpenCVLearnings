@@ -1,19 +1,32 @@
 import os
+from PIL import Image
 import cv2
 
-img = cv2.imread(os.path.join("data", "birds.jpg"))
-img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+from util import get_limits
 
-ret, thresh = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY_INV)
+color = (255, 128, 0)
 
-contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+capture = cv2.VideoCapture(0)
 
-for contour in contours:
-    if cv2.contourArea(contour) > 200:
-                x, y, w, h = cv2.boundingRect(contour)
-                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 3)
-                cv2.drawContours(img, contour, -1, (0, 0, 255), 2)
+while True:
+    ret, frame = capture.read()
 
-cv2.imshow("img", img)
-cv2.imshow("thresh", thresh)
-cv2.waitKey(0)
+    hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    lowerLimit, upperLimit = get_limits(color)
+    mask = cv2.inRange(hsvImage, lowerLimit, upperLimit)
+
+    mask_array = Image.fromarray(mask)
+    bbox = mask_array.getbbox()
+
+    if bbox:
+        x1, y1, x2, y2 = bbox
+        frame = cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    
+    cv2.imshow('frame', frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+capture.release()
+cv2.destroyAllWindows()
